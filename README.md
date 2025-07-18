@@ -51,6 +51,8 @@ set NODE_ENV=development && tsx server/index.ts
 
 ## 📁 Project Structure
 
+refer https://github.com/Altair-05/CodeBrosPlatform/blob/main/CodeReadme.md 
+
 ```
 CodeBrosPlatform/
 ├── client/src/          # React frontend
@@ -78,3 +80,5 @@ MIT -
 
 ---
 
+
+plz star the repo
