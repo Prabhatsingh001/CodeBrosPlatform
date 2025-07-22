@@ -11,10 +11,18 @@ import { getExperienceLevelColor, getExperienceLevelLabel, getOnlineStatus } fro
 
 export default function Profile() {
   const { id } = useParams<{ id: string }>();
-  const userId = parseInt(id || "1");
+  const userId = parseInt(id || "1", 10);
 
-  const { data: user, isLoading } = useQuery<User>({
-    queryKey: [`/api/users/${userId}`],
+  const { data: user, isLoading } = useQuery<User | null>({
+    queryKey: ['user', userId],
+    queryFn: async () => {
+      const response = await fetch(`/api/users/${userId}`);
+      if (!response.ok) {
+        return null;
+      }
+      return response.json();
+    },
+    enabled: !isNaN(userId),
   });
 
   if (isLoading) {
@@ -56,7 +64,8 @@ export default function Profile() {
     );
   }
 
-  const { color: statusColor, text: statusText } = getOnlineStatus(user.isOnline, user.lastSeen);
+  // FIX: Coalesce null to undefined for the lastSeen prop.
+  const { color: statusColor, text: statusText } = getOnlineStatus(user.isOnline ?? false, user.lastSeen ?? undefined);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -67,9 +76,9 @@ export default function Profile() {
           <CardContent className="p-8">
             <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-6">
               <Avatar className="w-24 h-24">
-                <AvatarImage src={user.profileImage} alt={`${user.firstName} ${user.lastName}`} />
+                <AvatarImage src={user.profileImage ?? undefined} alt={`${user.firstName} ${user.lastName}`} />
                 <AvatarFallback className="text-2xl">
-                  {user.firstName[0]}{user.lastName[0]}
+                  {user.firstName?.[0]}{user.lastName?.[0]}
                 </AvatarFallback>
               </Avatar>
               
@@ -83,7 +92,7 @@ export default function Profile() {
                   </div>
                   
                   <div className="flex space-x-3 mt-4 sm:mt-0">
-                    <Button className="bg-brand-blue text-white hover:bg-brand-blue-dark">
+                    <Button className="bg-blue-600 text-white hover:bg-blue-700">
                       <MessageCircle size={16} className="mr-2" />
                       Message
                     </Button>
@@ -99,9 +108,11 @@ export default function Profile() {
                     <div className={`w-2 h-2 ${statusColor} rounded-full mr-2`}></div>
                     <span className="text-sm text-gray-500 dark:text-gray-400">{statusText}</span>
                   </div>
-                  <Badge className={getExperienceLevelColor(user.experienceLevel)}>
-                    {getExperienceLevelLabel(user.experienceLevel)}
-                  </Badge>
+                  {user.experienceLevel && (
+                    <Badge className={getExperienceLevelColor(user.experienceLevel)}>
+                      {getExperienceLevelLabel(user.experienceLevel)}
+                    </Badge>
+                  )}
                   {user.openToCollaborate && (
                     <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
                       Open to Collaborate
@@ -137,9 +148,9 @@ export default function Profile() {
               </CardHeader>
               <CardContent>
                 <div className="flex flex-wrap gap-2">
-                  {user.skills.length > 0 ? (
-                    user.skills.map((skill, index) => (
-                      <Badge key={index} variant="secondary" className="text-sm">
+                  {user.skills && user.skills.length > 0 ? (
+                    user.skills.map((skill) => (
+                      <Badge key={skill} variant="secondary" className="text-sm">
                         {skill}
                       </Badge>
                     ))
@@ -150,40 +161,14 @@ export default function Profile() {
               </CardContent>
             </Card>
 
-            {/* Activity Feed */}
+            {/* Activity Feed (Placeholder) */}
             <Card>
               <CardHeader>
                 <CardTitle>Recent Activity</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="flex items-start space-x-3">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
-                    <div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Updated profile information
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-500">2 days ago</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start space-x-3">
-                    <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
-                    <div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Connected with 3 new developers
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-500">1 week ago</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start space-x-3">
-                    <div className="w-2 h-2 bg-purple-500 rounded-full mt-2"></div>
-                    <div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Joined CodeBros community
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-500">2 weeks ago</p>
-                    </div>
-                  </div>
+                  <p className="text-gray-500 dark:text-gray-400">No recent activity to display.</p>
                 </div>
               </CardContent>
             </Card>
@@ -200,69 +185,34 @@ export default function Profile() {
               <CardContent className="space-y-3">
                 <div className="flex items-center space-x-3">
                   <Mail size={16} className="text-gray-400" />
-                  <span className="text-sm text-gray-600 dark:text-gray-400">{user.email}</span>
+                  <a href={`mailto:${user.email}`} className="text-sm text-blue-600 dark:text-blue-400 hover:underline">{user.email}</a>
                 </div>
                 <div className="flex items-center space-x-3">
                   <Github size={16} className="text-gray-400" />
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                  <a href={`https://github.com/${user.username}`} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 dark:text-blue-400 hover:underline">
                     @{user.username}
-                  </span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <Linkedin size={16} className="text-gray-400" />
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
-                    /in/{user.username}
-                  </span>
+                  </a>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Statistics */}
+            {/* Statistics (Placeholder) */}
             <Card>
               <CardHeader>
                 <CardTitle>Statistics</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Connections</span>
-                  <span className="font-semibold text-gray-900 dark:text-white">42</span>
-                </div>
-                <Separator />
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Projects</span>
-                  <span className="font-semibold text-gray-900 dark:text-white">7</span>
-                </div>
-                <Separator />
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Profile Views</span>
-                  <span className="font-semibold text-gray-900 dark:text-white">124</span>
-                </div>
+              <CardContent>
+                 <p className="text-gray-500 dark:text-gray-400">Statistics are not available yet.</p>
               </CardContent>
             </Card>
 
-            {/* Mutual Connections */}
+            {/* Mutual Connections (Placeholder) */}
             <Card>
               <CardHeader>
                 <CardTitle>Mutual Connections</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  <div className="flex items-center space-x-3">
-                    <Avatar className="w-8 h-8">
-                      <AvatarFallback className="text-xs">JD</AvatarFallback>
-                    </Avatar>
-                    <span className="text-sm text-gray-600 dark:text-gray-400">John Doe</span>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <Avatar className="w-8 h-8">
-                      <AvatarFallback className="text-xs">JS</AvatarFallback>
-                    </Avatar>
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Jane Smith</span>
-                  </div>
-                  <Button variant="ghost" size="sm" className="w-full">
-                    View all mutual connections
-                  </Button>
-                </div>
+                <p className="text-gray-500 dark:text-gray-400">Mutual connections are not available yet.</p>
               </CardContent>
             </Card>
           </div>
