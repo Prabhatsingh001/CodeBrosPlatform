@@ -1,5 +1,14 @@
 import { Link, useLocation } from "wouter";
-import { Bell, Code, Home, MessageCircle, Moon, Search, Sun, Users } from "lucide-react";
+import {
+  Bell,
+  Code,
+  Home,
+  MessageCircle,
+  Moon,
+  Search,
+  Sun,
+  Users,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -24,7 +33,11 @@ interface HeaderProps {
   onSearch?: (query: string) => void;
 }
 
-export function Header({ currentUser, notificationCount = 0, onSearch }: HeaderProps) {
+export function Header({
+  currentUser,
+  notificationCount = 0,
+  onSearch,
+}: HeaderProps) {
   const [location] = useLocation();
   const { theme, setTheme } = useTheme();
   const [searchQuery, setSearchQuery] = useState("");
@@ -49,7 +62,9 @@ export function Header({ currentUser, notificationCount = 0, onSearch }: HeaderP
                 <div className="w-8 h-8 bg-brand-blue rounded-lg flex items-center justify-center">
                   <Code className="text-white" size={16} />
                 </div>
-                <span className="text-xl font-bold text-gray-900 dark:text-white">CodeBros</span>
+                <span className="text-xl font-bold text-gray-900 dark:text-white">
+                  CodeBros
+                </span>
               </div>
             </Link>
           </div>
@@ -107,7 +122,11 @@ export function Header({ currentUser, notificationCount = 0, onSearch }: HeaderP
 
             {/* Notifications */}
             <div className="relative">
-              <Button variant="ghost" size="sm" className="text-gray-600 dark:text-gray-300 hover:text-brand-blue">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-gray-600 dark:text-gray-300 hover:text-brand-blue"
+              >
                 <Bell size={16} className="mr-1" />
                 Notifications
                 {notificationCount > 0 && (
@@ -133,15 +152,21 @@ export function Header({ currentUser, notificationCount = 0, onSearch }: HeaderP
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Avatar className="w-8 h-8 cursor-pointer ring-2 ring-gray-300 dark:ring-gray-600 hover:ring-brand-blue transition-all">
-                    <AvatarImage src={currentUser.profileImage} alt={`${currentUser.firstName} ${currentUser.lastName}`} />
+                    <AvatarImage
+                      src={currentUser.profileImage}
+                      alt={`${currentUser.firstName} ${currentUser.lastName}`}
+                    />
                     <AvatarFallback>
-                      {currentUser.firstName[0]}{currentUser.lastName[0]}
+                      {currentUser.firstName[0]}
+                      {currentUser.lastName[0]}
                     </AvatarFallback>
                   </Avatar>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem asChild>
-                    <Link href={`/profile/${currentUser.id}`}>View Profile</Link>
+                    <Link href={`/profile/${currentUser.id}`}>
+                      View Profile
+                    </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link href="/settings">Settings</Link>
