@@ -21,10 +21,17 @@ import {
   getExperienceLevelLabel,
   getOnlineStatus,
 } from "@/lib/utils";
+import { useEffect } from "react";
+
 
 export default function Profile() {
   const { id } = useParams<{ id: string }>();
   const userId = parseInt(id || "1");
+
+  // FIX 4: Scroll to the top of the page when the component mounts or the ID changes.
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [id]);
 
   const { data: user, isLoading } = useQuery<User>({
     queryKey: [`/api/users/${userId}`],
