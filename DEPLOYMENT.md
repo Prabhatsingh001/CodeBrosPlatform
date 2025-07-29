@@ -113,15 +113,15 @@ Apps already integrated into the Firebase ecosystem or microservices requiring o
 
 ---
 
-## TL;DR
+## Summary
 
 | Platform               | Ease of Use | Cost (Free Tier) | Flexibility | Best For                        |
 | ---------------------- | ----------- | ---------------- | ----------- | ------------------------------- |
-| Vercel + Custom Server | Medium      | ✅                | Low         | Fullstack apps (Next.js + APIs) |
-| Railway                | High        | ✅✅               | Medium      | Prototyping and quick setups    |
-| Render                 | High        | ✅✅               | High        | Full Express backend deployment |
-| Docker + VPS           | Low         | ❌                | ✅✅✅         | Full control & performance      |
-| Firebase Functions     | Medium      | ✅✅               | Low         | Lightweight event-driven APIs   |
+| Vercel + Custom Server | Medium      | Available                | Low         | Fullstack apps (Next.js + APIs) |
+| Railway                | High        | Available              | Medium      | Prototyping and quick setups    |
+| Render                 | High        | Available              | High        | Full Express backend deployment |
+| Docker + VPS           | Low         | Not availabale           | High         | Full control & performance      |
+| Firebase Functions     | Medium      | Available              | Low         | Lightweight event-driven APIs   |
 
 ---
 
