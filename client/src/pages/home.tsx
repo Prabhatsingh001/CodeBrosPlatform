@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { User } from "@shared/schema";
+import { User } from "@shared/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { DeveloperCard } from "@/components/developer-card";
@@ -33,7 +33,7 @@ export default function Home() {
   const featuredUsers = users.slice(0, 4);
   
   // Handler to navigate to a user's profile
-  const handleViewProfile = (userId: number) => {
+  const handleViewProfile = (userId: string) => {
     setLocation(`/profile/${userId}`);
   };
 
@@ -84,6 +84,7 @@ export default function Home() {
                 Explore Network
               </Button>
             </Link>
+
             <Link href="/profile/1">
 
   <Button
@@ -96,6 +97,7 @@ export default function Home() {
 >
 
                 Complete Profile
+
               </Button>
             </Link>
           </div>
@@ -172,9 +174,9 @@ export default function Home() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {featuredUsers.map((user) => (
                 <DeveloperCard
-                  key={user.id}
+                  key={user._id}
                   user={user}
-                  currentUserId={1} // TODO: Get from auth context
+                  currentUserId="current" // TODO: Get from auth context
                   onConnect={(userId) => console.log("Connect to", userId)}
                   onMessage={(userId) => console.log("Message", userId)}
                   // FIX: Replaced console.log with the navigation handler
