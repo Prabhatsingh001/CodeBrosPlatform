@@ -91,7 +91,7 @@ export function Header({
               <Button
                 variant={isActive("/") ? "default" : "ghost"}
                 size="sm"
-                className="text-gray-600 dark:text-gray-300 hover:text-black "
+                className="text-gray-600 dark:text-gray-300 hover:text-brand-blue "
               >
                 <Home size={16} className="mr-1" />
                 Home
@@ -102,7 +102,7 @@ export function Header({
               <Button
                 variant={isActive("/network") ? "default" : "ghost"}
                 size="sm"
-                className="text-gray-600 dark:text-gray-300 hover:text-black"
+                className="text-gray-600 dark:text-gray-300 hover:text-brand-blue"
               >
                 <Users size={16} className="mr-1" />
                 Network
@@ -113,7 +113,7 @@ export function Header({
               <Button
                 variant={isActive("/messages") ? "default" : "ghost"}
                 size="sm"
-                className="text-gray-600 dark:text-gray-300 hover:text-black"
+                className="text-gray-600 dark:text-gray-300 hover:text-brand-blue"
               >
                 <MessageCircle size={16} className="mr-1" />
                 Messages
