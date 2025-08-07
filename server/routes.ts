@@ -10,6 +10,7 @@ import {
   searchUsersSchema
 } from "@shared/mongo-schema";
 import { z } from "zod";
+import { ObjectId } from 'mongodb'; // ADDED: Import ObjectId for database queries
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -123,7 +124,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Connection routes
+ 
+  app.get("/api/notifications/count", async (req, res) => {
+    try {
+       
+      const userId = (req as any).user?.id;
+
+      if (!userId) {
+        return res.status(401).json({ count: 0, message: "Unauthorized" });
+      }
+      
+      const db = mongoStorage.getDb();
+      const messagesCollection = db.collection("messages");
+
+      const unreadCount = await messagesCollection.countDocuments({
+        receiverId: new ObjectId(userId),
+        isRead: false,
+      });
+
+      res.status(200).json({ count: unreadCount });
+      
+    } catch (error) {
+      console.error("Error fetching notification count:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+ 
   app.get("/api/connections/user/:userId", async (req, res) => {
     try {
       const userId = req.params.userId;
@@ -261,3 +287,4 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
   return httpServer;
 }
+
