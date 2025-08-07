@@ -251,7 +251,7 @@ export function Header({
                     <>
                       <div className="flex justify-between items-center px-2 py-1 text-xs text-gray-500 dark:text-gray-400">
                         <span className="font-medium">Notifications</span>
-                        <button className="hover:underline transition text-blue-500 cursor-pointer text-xs">
+                        <button className="hover:underline transition text-blue-500 cursor-pointer text-xs" onClick={marking_read}>
                           Mark all as read
                         </button>
                       </div>
