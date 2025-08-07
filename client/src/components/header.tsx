@@ -191,7 +191,7 @@ export function Header({
               <Button
                 variant={isActive("/") ? "default" : "ghost"}
                 size="sm"
-                className="text-gray-600 dark:text-gray-300 hover:text-brand-blue"
+                className="text-gray-600 dark:text-gray-300 hover:text-brand-blue "
               >
                 <Home size={16} className="mr-1" />
                 Home
@@ -232,7 +232,7 @@ export function Header({
                   >
                     <Bell size={16} className="mr-1" />
                     <span className="hidden lg:block">Notifications</span>
-                    {(notificationCount > 0) && (
+                    {notificationCount > 0 && (
                       <Badge className="ml-1 absolute top-0 right-0 size-4 bg-red-500 text-white text-xs px-1 py-0.5 rounded-full flex items-center justify-center">
                         {notificationCount}
                       </Badge>
@@ -251,7 +251,7 @@ export function Header({
                     <>
                       <div className="flex justify-between items-center px-2 py-1 text-xs text-gray-500 dark:text-gray-400">
                         <span className="font-medium">Notifications</span>
-                        <button className="hover:underline transition text-blue-500 cursor-pointer text-xs" onClick={marking_read}>
+                        <button className="hover:underline transition text-blue-500 cursor-pointer text-xs">
                           Mark all as read
                         </button>
                       </div>
