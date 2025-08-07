@@ -25,15 +25,54 @@ import {
 import { useTheme } from "@/components/theme-provider";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/auth-context";
-import { useState } from "react";
+import { useState,useEffect } from "react";
+import axios from 'axios';
+import { useToast } from "@/hooks/use-toast";
+
 
 interface HeaderProps {
-  notificationCount?: number;
+  notificationCount: number;
+  setnotificationCount:  React.Dispatch<React.SetStateAction<number>>;
   onSearch?: (query: string) => void;
 }
 
+type User = {
+  _id: string;
+  username: string;
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  title: string;
+  bio: string;
+  experienceLevel: string;
+  skills: string[];
+  openToCollaborate: boolean;
+  isOnline: boolean;
+  lastSeen: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+type Message = {
+  _id: string;
+  senderId: string;
+  receiverId: string;
+  content: string;
+  isRead: boolean;
+  createdAt: string;
+};
+
+type NotificationItem = {
+  user: User;
+  lastUnreadMessage: Message;
+  unreadCount: number;
+};
+
+
 export function Header({
-  notificationCount = 0,
+  notificationCount,
+  setnotificationCount,
   onSearch,
 }: HeaderProps) {
   const [location, setLocation] = useLocation();
@@ -48,6 +87,67 @@ export function Header({
       setLocation(`/network?search=${encodeURIComponent(searchQuery.trim())}`);
     }
   };
+  const {toast} = useToast();
+  
+
+  const handleMessagesClick = (e: React.MouseEvent) => {
+    if (!user) {
+      e.preventDefault(); 
+      toast({
+        title: "Login required",
+        description: "Please log in to access messages.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const [unreadMessages, setUnreadMessages] = useState<NotificationItem[]>([]);
+  useEffect(() => {
+    const fetchMessages = async () => {
+      if (!user || !user._id) return;
+      try {
+        const res = await axios.get(`/api/messages/unread/${user._id}`);
+        setUnreadMessages(res.data);
+        setnotificationCount(res.data.length);
+      } catch (err) {
+        console.error("Failed to load messages", err);
+      }
+    };
+
+    fetchMessages();
+  }, [user]);
+
+
+  const marking_read= async () => {
+    try {
+        await fetch("/api/messages/mark-read", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            senderId: null,
+            receiverId: user?._id, 
+          }),
+        });
+
+        setnotificationCount(0); // Reset the counter
+        toast({
+          title: "Success",
+          description: "All notifications marked as read.",
+        });
+      } catch (error) {
+        console.error("Error marking as read:", error);
+        toast({
+          title: "Error",
+          description: "Something went wrong while marking notifications as read.",
+          variant: "destructive",
+        });
+      }
+    }
+
+
+
 
   const isActive = (path: string) => location === path;
 
@@ -111,6 +211,7 @@ export function Header({
 
             <Link href="/messages">
               <Button
+                onClick={handleMessagesClick}
                 variant={isActive("/messages") ? "default" : "ghost"}
                 size="sm"
                 className="text-gray-600 dark:text-gray-300 hover:text-brand-blue"
@@ -131,7 +232,7 @@ export function Header({
                   >
                     <Bell size={16} className="mr-1" />
                     <span className="hidden lg:block">Notifications</span>
-                    {notificationCount > 0 && (
+                    {(notificationCount > 0) && (
                       <Badge className="ml-1 absolute top-0 right-0 size-4 bg-red-500 text-white text-xs px-1 py-0.5 rounded-full flex items-center justify-center">
                         {notificationCount}
                       </Badge>
@@ -150,30 +251,28 @@ export function Header({
                     <>
                       <div className="flex justify-between items-center px-2 py-1 text-xs text-gray-500 dark:text-gray-400">
                         <span className="font-medium">Notifications</span>
-                        <button className="hover:underline transition text-blue-500 cursor-pointer text-xs">
+                        <button className="hover:underline transition text-blue-500 cursor-pointer text-xs" onClick={marking_read}>
                           Mark all as read
                         </button>
                       </div>
 
                       <div className="mt-1 space-y-1">
-                        {Array.from({ length: notificationCount }).map(
-                          (_, i) => (
-                            <DropdownMenuItem
-                              key={i}
-                              className="flex flex-col items-start px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition cursor-pointer group"
-                            >
-                              <div className="flex items-center justify-between w-full">
-                                <h1 className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                                  Notification title {i + 1}
-                                </h1>
-                                <span className="ml-2 h-2 w-2 rounded-full bg-blue-500 group-hover:bg-blue-600" />
-                              </div>
-                              <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                                The notification description goes here.
-                              </p>
-                            </DropdownMenuItem>
-                          )
-                        )}
+                        {unreadMessages.map((msg) => (
+                          <DropdownMenuItem
+                            key={msg.lastUnreadMessage._id}
+                            className="flex flex-col items-start px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                          >
+                            <div className="flex items-center justify-between w-full">
+                              <h1 className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                {msg.user.firstName || "Unknown Sender"}
+                              </h1>
+                              <span className="ml-2 h-2 w-2 rounded-full bg-blue-500" />
+                            </div>
+                            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                              {msg.lastUnreadMessage.content}
+                            </p>
+                          </DropdownMenuItem>
+                        ))}
                       </div>
                     </>
                   )}

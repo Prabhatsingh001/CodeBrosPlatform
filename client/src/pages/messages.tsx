@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Message, User } from "@shared/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,24 +12,26 @@ import { Send, Search } from "lucide-react";
 import { formatTimeAgo } from "@/lib/utils";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-
+import axios from 'axios';
 import { Conversation } from "@shared/types";
+import { useAuth } from "@/contexts/auth-context";
 
 export default function Messages() {
   const { toast } = useToast();
   const [selectedConversation, setSelectedConversation] = useState<User | null>(null);
   const [messageText, setMessageText] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const currentUserId = "current"; // TODO: Get from auth context
+  const {user}=useAuth()
+  const currentUserId = user?._id; // TODO: Get from auth context
 
   // Fetch conversations
   const { data: conversations = [], isLoading: conversationsLoading } = useQuery<Conversation[]>({
     queryKey: [`/api/messages/conversations/${currentUserId}`],
+    queryFn: () => axios.get(`/api/messages/conversations/${currentUserId}`).then(res => res.data),
   });
-
   // Fetch messages for selected conversation
   const { data: messages = [], isLoading: messagesLoading } = useQuery<Message[]>({
-    queryKey: [`/api/messages/conversation/${currentUserId}/${selectedConversation?.id}`],
+    queryKey: [`/api/messages/conversation/${currentUserId}/${selectedConversation?._id}`],
     enabled: !!selectedConversation,
   });
 
@@ -62,7 +64,7 @@ export default function Messages() {
     if (!selectedConversation || !messageText.trim()) return;
 
     sendMessageMutation.mutate({
-      receiverId: selectedConversation.id,
+      receiverId: selectedConversation._id,
       content: messageText.trim(),
     });
   };

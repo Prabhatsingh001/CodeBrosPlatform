@@ -12,7 +12,7 @@ import { ConnectionModal } from "@/components/connection-modal";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Search } from "lucide-react";
-
+import { useAuth } from "@/contexts/auth-context";
 interface SearchFilters {
   query: string;
   experienceLevel: string[];
@@ -32,7 +32,7 @@ export default function Network() {
     openToCollaborate: false,
     isOnline: false,
   });
-
+  const {user}=useAuth();
   // Parse search query from URL on component mount
   React.useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -76,12 +76,13 @@ export default function Network() {
   });
 
   // Send connection request mutation
+  
   const sendConnectionMutation = useMutation({
-    mutationFn: async ({ receiverId, message }: { receiverId: number; message?: string }) => {
+    mutationFn: async ({ requesterId,receiverId, message }: {requesterId: number, receiverId: number; message?: string }) => {
       const response = await apiRequest("POST", "/api/connections", {
-        requesterId: 1, // TODO: Get from auth context
-        receiverId,
-        message,
+        requesterId: user?._id, // TODO: Get from auth context
+        receiverId:receiverId,
+        message:message,
         status: "pending",
       });
       return response.json();

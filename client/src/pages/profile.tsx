@@ -22,11 +22,14 @@ import {
   getOnlineStatus,
 } from "@/lib/utils";
 import { useEffect } from "react";
-
-
+import React, { useState } from 'react';
+import MCard from "../components/MCard";
 export default function Profile() {
   const { id } = useParams<{ id: string }>();
   const userId = id || "current";
+  const [isOpen, setIsOpen] = useState(false);
+  const [message, setMessage] = useState("");
+
 
   // FIX 4: Scroll to the top of the page when the component mounts or the ID changes.
   useEffect(() => {
@@ -43,6 +46,13 @@ export default function Profile() {
       return response.json();
     },
   });
+
+  
+  const handleSend = () => {
+    console.log("Message sent:", message);
+    setIsOpen(false);
+    setMessage("");
+  };
 
   if (isLoading) {
     return (
@@ -122,10 +132,19 @@ export default function Profile() {
                   </div>
 
                   <div className="flex space-x-3 mt-4 sm:mt-0">
-                    <Button className="bg-brand-blue text-white hover:bg-brand-blue-dark">
+                    <div>
+                    <Button
+                      className="bg-brand-blue text-white hover:bg-brand-blue-dark"
+                      onClick={() => setIsOpen(true)}
+                    >
                       <MessageCircle size={16} className="mr-2" />
                       Message
                     </Button>
+
+                    {isOpen && (
+                      <MCard setIsOpen={setIsOpen} receiver={user} isOpen={isOpen} />
+                    )}
+                  </div>
                     <Button variant="outline">
                       <UserPlus size={16} className="mr-2" />
                       Connect

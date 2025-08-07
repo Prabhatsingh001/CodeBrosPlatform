@@ -307,18 +307,20 @@ export class MongoStorage {
 
   async getConversations(userId: string): Promise<Array<{ user: User; lastMessage: Message; unreadCount: number }>> {
     try {
+
       const userObjectId = new ObjectId(userId);
       
-      // Get all messages involving this user
       const userMessages = await this.messages.find({
         $or: [
           { senderId: userObjectId },
           { receiverId: userObjectId }
         ]
       }).sort({ createdAt: -1 }).toArray();
-
-      // Group by conversation partner and get latest message
-      const conversationMap = new Map<string, { user: User; lastMessage: Message; unreadCount: number }>();
+      const conversationMap = new Map<string, {
+        user: User;
+        lastMessage: Message;
+        unreadCount: number;
+      }>();
 
       for (const message of userMessages) {
         const otherUserId = message.senderId.equals(userObjectId) 
@@ -347,7 +349,6 @@ export class MongoStorage {
           }
         }
       }
-
       return Array.from(conversationMap.values()).sort((a, b) => 
         b.lastMessage.createdAt.getTime() - a.lastMessage.createdAt.getTime()
       );
@@ -364,7 +365,6 @@ export class MongoStorage {
       
       await this.messages.updateMany(
         { 
-          senderId: senderObjectId, 
           receiverId: receiverObjectId,
           isRead: false 
         },
@@ -374,7 +374,57 @@ export class MongoStorage {
       console.error("Error marking messages as read:", error);
     }
   }
+  //this is for getting unread messages
+  async getLastUnreadMessagesGroupedBySender(userId: string): Promise<
+      Array<{ user: User; lastUnreadMessage: Message; unreadCount: number }>
+    > {
+      try {
+        const userObjectId = new ObjectId(userId);
+
+
+        const unreadMessages = await this.messages.find({
+          receiverId: userObjectId,
+          isRead: false
+        }).sort({ createdAt: -1 }).toArray();
+
+        const senderMap = new Map<string, {
+          user: User;
+          lastUnreadMessage: Message;
+          unreadCount: number;
+        }>();
+
+        for (const message of unreadMessages) {
+          const senderId = message.senderId.toString();
+
+          if (!senderMap.has(senderId)) {
+            const senderUser = await this.users.findOne({ _id: new ObjectId(senderId) });
+
+            if (senderUser) {
+              senderMap.set(senderId, {
+                user: senderUser,
+                lastUnreadMessage: message, 
+                unreadCount: 1
+              });
+            }
+          } else {
+            const existing = senderMap.get(senderId)!;
+            existing.unreadCount++; 
+          }
+        }
+
+        return Array.from(senderMap.values());
+
+      } catch (error) {
+        console.error("Error getting last unread messages:", error);
+        return [];
+      }
+    }
+
 }
+
+
+
+
 
 // Export singleton instance
 export const mongoStorage = new MongoStorage(); 
