@@ -134,44 +134,78 @@ async function seedDatabase() {
       }
 
       // Create some sample messages
-      const messages: InsertMessage[] = [
-        {
-          senderId: createdUsers[0]._id,
-          receiverId: createdUsers[1]._id,
-          content: "Hey! I saw your profile and loved your work with Python and Django. Would you be interested in collaborating on a project?",
-        },
-        {
-          senderId: createdUsers[1]._id,
-          receiverId: createdUsers[0]._id,
-          content: "Absolutely! I'd love to work together. What kind of project do you have in mind?",
-        },
-        {
-          senderId: createdUsers[0]._id,
-          receiverId: createdUsers[1]._id,
-          content: "I'm thinking of building a developer networking platform. It would be perfect for our skills!",
-        },
-        {
-          senderId: createdUsers[1]._id,
-          receiverId: createdUsers[0]._id,
-          content: "That sounds amazing! I can handle the backend with Django and you can work on the React frontend. When can we start?",
-        },
-        {
-          senderId: createdUsers[0]._id,
-          receiverId: createdUsers[3]._id,
-          content: "Hi Komal! I'm impressed by your DevOps expertise. Would you be interested in helping us set up CI/CD for our project?",
-        },
-        {
-          senderId: createdUsers[3]._id,
-          receiverId: createdUsers[0]._id,
-          content: "Of course! I'd be happy to help with the CI/CD setup. What tech stack are you planning to use?",
-        },
-      ];
+if (createdUsers.length >= 4) {
+  const connections: InsertConnection[] = [
+    {
+      requesterId: new ObjectId(createdUsers[0]._id), // Ensure ObjectId format
+      receiverId: new ObjectId(createdUsers[1]._id),
+      status: "accepted",
+      message: "Would love to collaborate on some projects!",
+    },
+    {
+      requesterId: new ObjectId(createdUsers[1]._id),
+      receiverId: new ObjectId(createdUsers[2]._id),
+      status: "pending",
+      message: "Interested in learning more about your work!",
+    },
+    {
+      requesterId: new ObjectId(createdUsers[0]._id),
+      receiverId: new ObjectId(createdUsers[3]._id),
+      status: "accepted",
+      message: "Great to connect with another developer!",
+    },
+    {
+      requesterId: new ObjectId(createdUsers[4]._id),
+      receiverId: new ObjectId(createdUsers[0]._id),
+      status: "accepted",
+      message: "Looking forward to potential collaborations!",
+    },
+  ];
 
-      for (const messageData of messages) {
-        const message = await mongoStorage.createMessage(messageData);
-        console.log(`Created message`);
-      }
-    }
+  for (const connectionData of connections) {
+    const connection = await mongoStorage.createConnection(connectionData);
+    console.log(`Created connection between users`);
+  }
+
+  // Create some sample messages
+  const messages: InsertMessage[] = [
+    {
+      senderId: new ObjectId(createdUsers[0]._id),  // Ensure ObjectId format
+      receiverId: new ObjectId(createdUsers[1]._id),
+      content: "Hey! I saw your profile and loved your work with Python and Django. Would you be interested in collaborating on a project?",
+    },
+    {
+      senderId: new ObjectId(createdUsers[1]._id),
+      receiverId: new ObjectId(createdUsers[0]._id),
+      content: "Absolutely! I'd love to work together. What kind of project do you have in mind?",
+    },
+    {
+      senderId: new ObjectId(createdUsers[0]._id),
+      receiverId: new ObjectId(createdUsers[1]._id),
+      content: "I'm thinking of building a developer networking platform. It would be perfect for our skills!",
+    },
+    {
+      senderId: new ObjectId(createdUsers[1]._id),
+      receiverId: new ObjectId(createdUsers[0]._id),
+      content: "That sounds amazing! I can handle the backend with Django and you can work on the React frontend. When can we start?",
+    },
+    {
+      senderId: new ObjectId(createdUsers[0]._id),
+      receiverId: new ObjectId(createdUsers[3]._id),
+      content: "Hi Komal! I'm impressed by your DevOps expertise. Would you be interested in helping us set up CI/CD for our project?",
+    },
+    {
+      senderId: new ObjectId(createdUsers[3]._id),
+      receiverId: new ObjectId(createdUsers[0]._id),
+      content: "Of course! I'd be happy to help with the CI/CD setup. What tech stack are you planning to use?",
+    },
+  ];
+
+  for (const messageData of messages) {
+    const message = await mongoStorage.createMessage(messageData);
+    console.log(`Created message`);
+  }
+}
 
     console.log("Database seeding completed successfully!");
   } catch (error) {
