@@ -19,7 +19,7 @@ export class MongoStorage {
   private messages: Collection<Message>;
 
   constructor() {
-    const mongoUri = process.env.MONGODB_URI || "mongodb://localhost:27017";
+    const mongoUri = process.env.MONGODB_URI || "mongodb+srv://ghostcoder420:I0ChBo6m9HVl5nIB@codebros.bzpqzuc.mongodb.net/?retryWrites=true&w=majority&appName=codebros";
     const dbName = process.env.MONGODB_DB_NAME || "codebros";
     
     this.client = new MongoClient(mongoUri);

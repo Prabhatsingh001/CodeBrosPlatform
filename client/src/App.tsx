@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/contexts/auth-context";
-import { Header } from "@/components/header";
+import { HeaderWithNotifications } from "@/components/header-with-notifications"; // IMPORT THE NEW WRAPPER
 import Home from "@/pages/home";
 import Network from "@/pages/network";
 import Profile from "@/pages/profile";
@@ -40,8 +40,7 @@ function App() {
           <TooltipProvider>
             <div className="min-h-screen bg-background">
               <Header 
-                notificationCount={notificationCount}
-                setnotificationCount={setnotificationCount}
+                notificationCount={3}
                 onSearch={(query) => console.log("Search:", query)}
               />
               <main>
