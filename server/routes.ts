@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { mongoStorage } from "./db/mongo.js";
+import { ObjectId } from "mongodb";
 import { 
   insertUserSchema, 
   insertConnectionSchema,
@@ -182,9 +183,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/connections", async (req, res) => {
     try {
-      const connectionData = insertConnectionSchema.parse(req.body);
-      
-      // Check if connection already exists
+      const body={
+        requesterId: new ObjectId(req.body.requesterId),
+        receiverId: new ObjectId(req.body.receiverId),
+        status:req.body.status,
+        message: req.body.message
+      }
+      const connectionData = insertConnectionSchema.parse(body);
       const existing = await mongoStorage.getConnection(
         connectionData.requesterId.toString(), 
         connectionData.receiverId.toString()
@@ -197,7 +202,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const connection = await mongoStorage.createConnection(connectionData);
       res.status(201).json(connection);
     } catch (error) {
-      res.status(400).json({ message: "Invalid connection data" });
+      res.status(400).json({ message: error });
     }
   });
 
@@ -241,7 +246,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/messages", async (req, res) => {
     try {
-      const messageData = insertMessageSchema.parse(req.body);
+      const body= {
+        senderId: new ObjectId(req.body?.senderId),
+        receiverId: new ObjectId(req.body?.receiverId), // Make sure receiver has an `id` property
+        content: req.body.content
+      }
+      const messageData = insertMessageSchema.parse(body);
       const message = await mongoStorage.createMessage(messageData);
       res.status(201).json(message);
     } catch (error) {
@@ -258,6 +268,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to mark messages as read" });
     }
   });
+
+
+// GET /api/messages/unread/:userId
+app.get("/api/messages/unread/:userId", async (req, res) => {
+  try {
+      const userId = req.params.userId;
+      const conversations = await mongoStorage.getLastUnreadMessagesGroupedBySender(userId);
+      res.json(conversations);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch conversations" });
+    }
+});
+
+
 
   // Authentication routes
   app.post("/api/auth/login", async (req, res) => {

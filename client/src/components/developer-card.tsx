@@ -28,6 +28,7 @@ export function DeveloperCard({
 
   const handleConnect = () => {
     if (onConnect && !isOwnProfile) {
+      console.log("user   ", user)
       onConnect(user._id);
     }
   };

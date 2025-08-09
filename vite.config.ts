@@ -34,4 +34,7 @@ export default defineConfig({
       deny: ["**/.*"],
     },
   },
+  esbuild: {
+    sourcemap: false,
+  },
 });

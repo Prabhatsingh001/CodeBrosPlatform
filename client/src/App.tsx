@@ -14,6 +14,7 @@ import Register from "@/pages/register";
 import Login from "@/pages/login";
 import Settings from "@/pages/settings";
 import NotFound from "@/pages/not-found";
+import { useState } from "react";
 
 function Router() {
   return (
@@ -31,13 +32,17 @@ function Router() {
 }
 
 function App() {
+  const [notificationCount,setnotificationCount]=useState<number>(0);
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="light" storageKey="codebros-ui-theme">
         <AuthProvider>
           <TooltipProvider>
             <div className="min-h-screen bg-background">
-              <HeaderWithNotifications />
+              <Header 
+                notificationCount={3}
+                onSearch={(query) => console.log("Search:", query)}
+              />
               <main>
                 <Router />
               </main>
