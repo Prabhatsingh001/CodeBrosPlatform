@@ -72,19 +72,15 @@ export async function setupVite(app: Express, server: Server) {
 }
 
 export function serveStatic(app: Express) {
-  const distPath = path.resolve(import.meta.dirname, "../public"); 
-  // ../public because vite.ts will be inside dist/server after build
+  const distPath = path.resolve(process.cwd(), "dist/public"); // Always from project root
 
   if (!fs.existsSync(distPath)) {
-    throw new Error(
-      `Could not find the build directory: ${distPath}, make sure to build the client first`
-    );
+    throw new Error(`Could not find build output at ${distPath}`);
   }
 
   app.use(express.static(distPath));
 
-  // SPA fallback
   app.use("*", (_req, res) => {
-    res.sendFile(path.join(distPath, "index.html"));
+    res.sendFile(path.join(distPath, "index.html")); // This is the built file
   });
 }
